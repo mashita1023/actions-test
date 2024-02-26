@@ -11,8 +11,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
       - name: comment-check
         run: |
-          message=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
-          if echo "$message" | grep -F -e "[refactor]" -e "[feature]"; then
+          commit=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+          message=$(echo "$message" | grep -F -e "[refactor]" -e "[feature]")
+          if [ -n "${message}" ]; then
             echo "comment='commented refactor or feature'" >> $GITHUB_OUTPUT
           else
             echo "comment='please fix commit'" >> $GITHUB_OUTPUT
