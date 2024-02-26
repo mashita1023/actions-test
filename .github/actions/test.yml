@@ -1,0 +1,29 @@
+on:
+  pull_request:
+    paths:
+      - 'src/second_project/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: comment-check
+        run: |
+          message=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+          if echo "$message" | grep -F -e "[refactor]" -e "[feature]"; then
+            echo "comment='commented refactor or feature'" >> $GITHUB_OUTPUT
+          else
+            echo "comment='please fix commit'" >> $GITHUB_OUTPUT
+          end
+      - name: comment-pr
+        uses: actions/github-script@v6
+        run: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.issue.owner,
+            repo: context.issue.repo,
+            body: `${{ github.steps.comment-check.comment }}`
+          })
