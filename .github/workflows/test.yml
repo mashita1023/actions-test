@@ -19,10 +19,11 @@ jobs:
           end
       - name: comment-pr
         uses: actions/github-script@v6
-        run: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.issue.owner,
-            repo: context.issue.repo,
-            body: `${{ github.steps.comment-check.comment }}`
-          })
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.issue.owner,
+              repo: context.issue.repo,
+              body: `${{ github.steps.comment-check.comment }}`
+            })
